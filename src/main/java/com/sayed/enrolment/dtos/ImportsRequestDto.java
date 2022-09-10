@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 @NoArgsConstructor
@@ -12,5 +13,5 @@ import java.util.List;
 @Getter @Setter
 public class ImportsRequestDto {
     private List<EntityDto> items;
-    private String updateDate;
+    private Timestamp updateDate;
 }
