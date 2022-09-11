@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 public interface FolderService {
     void saveFolder(EntityDto dto, Timestamp updateDate) throws FolderNotFoundException;
     void saveFolder(Folder folder);
+    void updateDate(Folder folder, Timestamp updateDate);
     Folder getFolder(String id) throws FolderNotFoundException;
     boolean folderDuplicateCheck(String id);
     void deleteFolder(String id) throws FolderNotFoundException;

@@ -19,11 +19,10 @@ public class FolderServiceImpl implements FolderService {
         Folder folder = folderRepo.findById(dto.getId()).orElse(null);
         if (folder == null) {
             folder = new Folder();
-//            folder.setSize(0);
         }
         folder.setId(dto.getId());
         folder.setUrl(dto.getUrl());
-        folder.setDate(updateDate);
+        this.updateDate(folder, updateDate);
         if (folder.getParentId() != null && dto.getParentId() == null) {
             this.deleteChildFolder(folder.getParentId(), folder, updateDate);
         }
@@ -40,6 +39,18 @@ public class FolderServiceImpl implements FolderService {
     @Override
     public void saveFolder(Folder folder) {
         folderRepo.save(folder);
+    }
+
+    @Override
+    public void updateDate(Folder folder, Timestamp updateDate) {
+        while (folder != null) {
+            folder.setDate(updateDate);
+            folderRepo.save(folder);
+            if (folder.getParentId() == null) {
+                break;
+            }
+            folder = folderRepo.findById(folder.getParentId()).orElse(null);
+        }
     }
 
     @Override
