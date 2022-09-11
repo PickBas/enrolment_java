@@ -36,29 +36,31 @@ public class MainController {
         return ResponseEntity.badRequest().body(response);
     }
 
+    @ExceptionHandler({ FolderNotFoundException.class })
+    public ResponseEntity<?> handleFolderNotFoundException() {
+        return badRequest();
+    }
+
+    @ExceptionHandler({ AppFileNotFoundException.class })
+    public ResponseEntity<?> handleAppFileNotFoundException() {
+        Map<String, String> response = new HashMap<>();
+        response.put("code", String.valueOf(404));
+        response.put("message", "Item not found");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
     @PostMapping("/imports")
-    public ResponseEntity<?> importData(@RequestBody ImportsRequestDto request) {
+    public ResponseEntity<?> importData(@RequestBody ImportsRequestDto request) throws FolderNotFoundException {
         List<String> idStorage = new ArrayList<>();
         for (EntityDto dto : request.getItems()) {
-            if (!dto.validate()) {
-                return badRequest();
-            }
-            if (idStorage.contains(dto.getId())) {
+            if (!dto.validate() || idStorage.contains(dto.getId())) {
                 return badRequest();
             }
             idStorage.add(dto.getId());
             if (dto.getType().equals("FOLDER") && !fileService.fileDuplicateCheck(dto.getId())) {
-                try {
-                    folderService.saveFolder(dto, request.getUpdateDate());
-                } catch (FolderNotFoundException e) {
-                    return badRequest();
-                }
+                folderService.saveFolder(dto, request.getUpdateDate());
             } else if (dto.getType().equals("FILE") && !folderService.folderDuplicateCheck(dto.getId())) {
-                try {
-                    fileService.saveFile(dto, request.getUpdateDate());
-                } catch (FolderNotFoundException e) {
-                    return badRequest();
-                }
+                fileService.saveFile(dto, request.getUpdateDate());
             }
             else {
                 return badRequest();
@@ -68,18 +70,11 @@ public class MainController {
     }
 
     @GetMapping("/nodes/{id}")
-    public ResponseEntity<?> nodeById(@PathVariable(name="id") String id) {
+    public ResponseEntity<?> nodeById(@PathVariable(name="id") String id) throws AppFileNotFoundException {
         try {
             return ResponseEntity.ok().body(folderService.getFolder(id));
         } catch (FolderNotFoundException e) {
-            try {
-                return ResponseEntity.ok().body(fileService.getFile(id));
-            } catch (AppFileNotFoundException ex) {
-                Map<String, String> response = new HashMap<>();
-                response.put("code", String.valueOf(404));
-                response.put("message", "Item not found");
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-            }
+            return ResponseEntity.ok().body(fileService.getFile(id));
         }
     }
 
