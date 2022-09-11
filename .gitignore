@@ -25,3 +25,6 @@ hs_err_pid*
 # Additional
 .idea
 target
+venv
+expected.json
+response.json
