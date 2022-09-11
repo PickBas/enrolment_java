@@ -4,7 +4,6 @@ import com.sayed.enrolment.dtos.EntityDto;
 import com.sayed.enrolment.dtos.ImportsRequestDto;
 import com.sayed.enrolment.file.AppFileService;
 import com.sayed.enrolment.file.exceptions.AppFileNotFoundException;
-import com.sayed.enrolment.folder.Folder;
 import com.sayed.enrolment.folder.FolderService;
 import com.sayed.enrolment.folder.exceptions.FolderNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.websocket.server.PathParam;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -84,4 +82,7 @@ public class MainController {
             }
         }
     }
+
+//    @DeleteMapping("/delete/{id}")
+//    public ResponseEntity<?>
 }

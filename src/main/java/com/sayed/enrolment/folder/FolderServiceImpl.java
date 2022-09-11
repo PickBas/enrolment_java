@@ -19,7 +19,7 @@ public class FolderServiceImpl implements FolderService {
         Folder folder = folderRepo.findById(dto.getId()).orElse(null);
         if (folder == null) {
             folder = new Folder();
-            folder.setSize(0);
+//            folder.setSize(0);
         }
         folder.setId(dto.getId());
         folder.setUrl(dto.getUrl());
