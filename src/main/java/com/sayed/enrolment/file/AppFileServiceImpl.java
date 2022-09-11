@@ -26,7 +26,10 @@ public class AppFileServiceImpl implements AppFileService {
         file.setId(dto.getId());
         file.setUrl(dto.getUrl());
         file.setDate(updateDate);
-        file.setParentId(dto.getParentId()); // TODO: removing from children
+        if (file.getParentId() != null && dto.getParentId() == null) {
+            folderService.deleteChildFile(file.getParentId(), file, updateDate);
+        }
+        file.setParentId(dto.getParentId());
         file.setSize(dto.getSize());
         fileRepo.save(file);
         if (dto.getParentId() != null) {

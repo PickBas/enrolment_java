@@ -4,10 +4,7 @@ import com.sayed.enrolment.file.AppFile;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,9 +20,9 @@ public class Folder {
     private String parentId;
     private Integer size;
     private final String type = "FOLDER";
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<AppFile> childrenFiles;
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Folder> childrenFolders;
 
     public Folder() {
@@ -43,4 +40,13 @@ public class Folder {
         this.size += folder.getSize();
         childrenFolders.add(folder);
     }
+
+    public void removeChildFile(AppFile file) {
+        childrenFiles.remove(file);
+    }
+
+    public void removeChildFolder(Folder folder) {
+        childrenFolders.remove(folder);
+    }
+
 }
