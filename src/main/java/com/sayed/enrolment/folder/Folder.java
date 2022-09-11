@@ -1,22 +1,18 @@
 package com.sayed.enrolment.folder;
 
 import com.sayed.enrolment.file.AppFile;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Fetch;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@NoArgsConstructor
-@AllArgsConstructor
 @Setter @Getter
 public class Folder {
     @Id
@@ -28,10 +24,23 @@ public class Folder {
     private Integer size;
     private final String type = "FOLDER";
     @OneToMany
-    private List<AppFile> children;
+    private List<AppFile> childrenFiles;
+    @OneToMany
+    private List<Folder> childrenFolders;
 
-    public void addChild(AppFile file) {
+    public Folder() {
+        size = 0;
+        childrenFolders = new ArrayList<>();
+        childrenFiles = new ArrayList<>();
+    }
+
+    public void addChildFile(AppFile file) {
         this.size += file.getSize();
-        children.add(file);
+        childrenFiles.add(file);
+    }
+
+    public void addChildFolder(Folder folder) {
+        this.size += folder.getSize();
+        childrenFolders.add(folder);
     }
 }

@@ -22,17 +22,18 @@ public class AppFileServiceImpl implements AppFileService {
         AppFile file = fileRepo.findById(dto.getId()).orElse(null);
         if (file == null) {
             file = new AppFile();
-            file.setId(dto.getId());
-            file.setUrl(dto.getUrl());
-            file.setDate(updateDate);
-            file.setParentId(dto.getParentId());
-            file.setSize(dto.getSize());
-            fileRepo.save(file);
-            if (dto.getParentId() != null) {
-                Folder folder = folderService.getFolder(dto.getParentId());
-                folder.setDate(updateDate);
-                folder.addChild(file);
-            }
+        }
+        file.setId(dto.getId());
+        file.setUrl(dto.getUrl());
+        file.setDate(updateDate);
+        file.setParentId(dto.getParentId()); // TODO: removing from children
+        file.setSize(dto.getSize());
+        fileRepo.save(file);
+        if (dto.getParentId() != null) {
+            Folder folder = folderService.getFolder(dto.getParentId());
+            folder.setDate(updateDate);
+            folder.addChildFile(file);
+            folderService.saveFolder(folder);
         }
     }
 
@@ -41,6 +42,11 @@ public class AppFileServiceImpl implements AppFileService {
         return fileRepo.findById(id).orElseThrow(
                 () -> new AppFileNotFoundException("Wrong file id was provided.")
         );
+    }
+
+    @Override
+    public boolean fileDuplicateCheck(String id) {
+        return fileRepo.findById(id).orElse(null) != null;
     }
 
     @Override

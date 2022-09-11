@@ -9,5 +9,6 @@ import java.sql.Timestamp;
 public interface AppFileService {
     void saveFile(EntityDto dto, Timestamp updateDate) throws FolderNotFoundException;
     AppFile getFile(String id) throws AppFileNotFoundException;
+    boolean fileDuplicateCheck(String id);
     void deleteFile(String id) throws AppFileNotFoundException;
 }
