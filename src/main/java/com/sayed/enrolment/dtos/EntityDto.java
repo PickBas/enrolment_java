@@ -20,15 +20,12 @@ public class EntityDto {
         if (id == null) {
             return false;
         }
-        if (type.equals("FOLDER") && url != null) {
-            return false;
+        if (type.equals("FOLDER")) {
+            return url == null && size == null;
         }
-        if (url != null && url.length() > 255) {
-            return false;
+        else if (type.equals("FILE")) {
+            return url.length() > 0 && url.length() <= 255 && size > 0;
         }
-        if (type.equals("FOLDER") && size != null) {
-            return false;
-        }
-        return true;
+        return false;
     }
 }
