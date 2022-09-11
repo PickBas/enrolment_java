@@ -1,13 +1,14 @@
 package com.sayed.enrolment.folder;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sayed.enrolment.file.AppFile;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Setter @Getter
@@ -21,8 +22,10 @@ public class Folder {
     private Integer size;
     private final String type = "FOLDER";
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<AppFile> childrenFiles;
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Folder> childrenFolders;
 
     public Folder() {
@@ -48,5 +51,13 @@ public class Folder {
     public void removeChildFolder(Folder folder) {
         childrenFolders.remove(folder);
     }
+
+    public Collection<Object> getChildren() {
+        Collection<Object> children = new ArrayList<>();
+        children.addAll(childrenFiles);
+        children.addAll(childrenFolders);
+        return children;
+    }
+
 
 }
