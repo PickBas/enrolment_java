@@ -11,6 +11,7 @@ public interface AppFileService {
     void saveFile(EntityDto dto, Timestamp updateDate) throws FolderNotFoundException;
     AppFile getFile(String id) throws AppFileNotFoundException;
     List<AppFile> updates(Timestamp date);
+    List<AppFile> getHistory(String id);
     boolean fileDuplicateCheck(String id);
     void deleteFile(String id, Timestamp date) throws AppFileNotFoundException;
 }

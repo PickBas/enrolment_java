@@ -6,11 +6,19 @@ import com.sayed.enrolment.folder.Folder;
 import com.sayed.enrolment.folder.FolderService;
 import com.sayed.enrolment.folder.exceptions.FolderNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.envers.AuditReader;
+import org.hibernate.envers.AuditReaderFactory;
+import org.hibernate.envers.RevisionType;
+import org.hibernate.envers.query.AuditEntity;
+import org.hibernate.envers.query.AuditQuery;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -19,6 +27,8 @@ public class AppFileServiceImpl implements AppFileService {
 
     private final AppFileRepo fileRepo;
     private final FolderService folderService;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Override
     public void saveFile(EntityDto dto, Timestamp updateDate) throws FolderNotFoundException {
@@ -55,6 +65,23 @@ public class AppFileServiceImpl implements AppFileService {
     @Cacheable("appfileupdates")
     public List<AppFile> updates(Timestamp date) {
         return fileRepo.findAllByDateBetween(new Timestamp(date.getTime() - 24 * 60 * 60 * 1000), date);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<AppFile> getHistory(String id) {
+        AuditReader auditReader = AuditReaderFactory.get(entityManager);
+        AuditQuery query = auditReader.createQuery()
+                .forRevisionsOfEntity(AppFile.class, false, false)
+                .add(AuditEntity.id().eq(id)) // if you remove this line, you'll get an update history of all Notes
+                .add(AuditEntity.revisionType().eq(RevisionType.MOD)); // we're only interested in MODifications
+        List<Object[]> revisions = (List<Object[]>) query.getResultList();
+        List<AppFile> results = new ArrayList<>();
+        for (Object[] result : revisions) {
+            AppFile file = (AppFile) result[0];
+            results.add(file);
+        }
+        return results;
     }
 
     @Override

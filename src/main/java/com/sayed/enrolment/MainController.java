@@ -101,4 +101,16 @@ public class MainController {
         Timestamp date = new Timestamp(inputDate.getTime());
         return ResponseEntity.ok(fileService.updates(date));
     }
+
+    @GetMapping("/node/{id}/history")
+    public ResponseEntity<?> nodeHistory(
+            @PathVariable String id,
+            @RequestParam(name = "dateStart")
+            @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'",
+                    fallbackPatterns = {"yyyy-MM-dd'T'HH:mm:ss.sss'Z'"}) Date dateStart,
+            @RequestParam(name = "dateEnd")
+            @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'",
+                    fallbackPatterns = {"yyyy-MM-dd'T'HH:mm:ss.sss'Z'"}) Date dateEnd) {
+        return ResponseEntity.ok(fileService.getHistory(id));
+    }
 }
