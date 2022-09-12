@@ -78,8 +78,10 @@ public class MainController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteById(@PathVariable(name = "id") String id,
-                                        @RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssX") Date inputDate) throws AppFileNotFoundException {
+    public ResponseEntity<?> deleteById(
+            @PathVariable(name = "id") String id, @RequestParam(name = "date") @DateTimeFormat(
+                    pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", fallbackPatterns = {"yyyy-MM-dd'T'HH:mm:ss.sss'Z'"}
+            ) Date inputDate) throws AppFileNotFoundException {
         Timestamp date = new Timestamp(inputDate.getTime());
         try {
             folderService.deleteFolder(id, date);
@@ -88,5 +90,12 @@ public class MainController {
             fileService.deleteFile(id, date);
             return ResponseEntity.ok().build();
         }
+    }
+
+    @GetMapping("/updates")
+    public ResponseEntity<?> updates(@RequestParam(name = "date")
+                                         @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", fallbackPatterns = {"yyyy-MM-dd'T'HH:mm:ss.sss'Z'"}) Date inputDate) {
+        Timestamp date = new Timestamp(inputDate.getTime());
+        return ResponseEntity.ok(fileService.updates(date));
     }
 }
