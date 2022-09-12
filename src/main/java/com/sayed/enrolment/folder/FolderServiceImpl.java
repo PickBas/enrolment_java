@@ -66,10 +66,13 @@ public class FolderServiceImpl implements FolderService {
     }
 
     @Override
-    public void deleteFolder(String id) throws FolderNotFoundException {
+    public void deleteFolder(String id, Timestamp date) throws FolderNotFoundException {
         Folder folder = folderRepo.findById(id).orElseThrow(
                 () -> new FolderNotFoundException("Wrong id was provided.")
         );
+        if (folder.getParentId() != null) {
+            folderRepo.findById(folder.getParentId()).ifPresent(parentFolder -> this.updateDate(parentFolder, date));
+        }
         folderRepo.delete(folder);
     }
 

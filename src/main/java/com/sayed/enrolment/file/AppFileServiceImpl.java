@@ -53,10 +53,17 @@ public class AppFileServiceImpl implements AppFileService {
     }
 
     @Override
-    public void deleteFile(String id) throws AppFileNotFoundException {
+    public void deleteFile(String id, Timestamp date) throws AppFileNotFoundException {
         AppFile file = fileRepo.findById(id).orElseThrow(
                 () -> new AppFileNotFoundException("Wrong file id was provided.")
         );
+        if (file.getParentId() != null) {
+            try {
+                folderService.updateDate(folderService.getFolder(file.getParentId()), date);
+            } catch (FolderNotFoundException e) {
+                throw new IllegalStateException("Could not find folder");
+            }
+        }
         fileRepo.delete(file);
     }
 }
