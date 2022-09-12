@@ -22,17 +22,33 @@ public class Folder {
     @Column(nullable = false)
     private String id;
     private String url;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
+    @JsonFormat(
+            shape = JsonFormat.Shape.STRING,
+            pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+    )
     private Timestamp date;
     @ManyToOne
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonIgnore
     private Folder parent;
     private final String type = "FOLDER";
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(
+            cascade = {CascadeType.PERSIST,
+                    CascadeType.PERSIST,
+                    CascadeType.REMOVE,
+                    CascadeType.REFRESH},
+            fetch = FetchType.LAZY, orphanRemoval = true
+    )
     @JsonIgnore
+    @JoinColumn(name = "parent_id")
     private List<AppFile> childrenFiles;
-    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.REFRESH}, fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(
+            cascade = {CascadeType.PERSIST,
+                    CascadeType.PERSIST,
+                    CascadeType.REMOVE,
+                    CascadeType.REFRESH},
+            fetch = FetchType.LAZY, orphanRemoval = true
+    )
     @JsonIgnore
     @JoinColumn(name = "parent_id")
     private List<Folder> childrenFolders;
