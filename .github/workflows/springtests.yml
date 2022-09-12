@@ -1,0 +1,36 @@
+name: Spring Tests
+
+on:
+  push:
+    branches: [ master, feature/delete ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    services:
+      db:
+        image: postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: enrolment_java_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 18
+        uses: actions/setup-java@v1
+        with:
+          java-version: 18
+      - name: Test Spring
+        run: ./mvnw test
+        env:
+          PSQL_PASSWORD: postgres
