@@ -2,7 +2,7 @@ name: Spring Tests
 
 on:
   push:
-    branches: [ master, feature/delete ]
+    branches: [ master ]
   pull_request:
     branches: [ master ]
 
