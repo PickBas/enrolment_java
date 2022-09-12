@@ -24,7 +24,7 @@ public class FolderServiceImpl implements FolderService {
         }
         folder.setId(dto.getId());
         folder.setUrl(dto.getUrl());
-        this.updateDate(folder, updateDate);
+        this.updateDate(folder.getId(), updateDate);
         if (folder.getParent() != null && dto.getParentId() == null) {
             this.deleteChildFolder(folder.getParent().getId(), folder, updateDate);
         }
@@ -47,8 +47,9 @@ public class FolderServiceImpl implements FolderService {
         folderRepo.save(folder);
     }
 
-    @Override
-    public void updateDate(Folder folder, Timestamp updateDate) {
+    @CacheEvict(value = "folder", allEntries = true)
+    public void updateDate(String id, Timestamp updateDate) {
+        Folder folder = folderRepo.findById(id).orElse(null);
         while (folder != null) {
             folder.setDate(updateDate);
             folderRepo.save(folder);
@@ -73,13 +74,15 @@ public class FolderServiceImpl implements FolderService {
     }
 
     @Override
-    @CacheEvict(value = "folder", key="#id")
+    @CacheEvict(value = "folder", allEntries = true)
     public void deleteFolder(String id, Timestamp date) throws FolderNotFoundException {
         Folder folder = folderRepo.findById(id).orElseThrow(
                 () -> new FolderNotFoundException("Wrong id was provided.")
         );
         if (folder.getParent() != null) {
-            folderRepo.findById(folder.getParent().getId()).ifPresent(parentFolder -> this.updateDate(parentFolder, date));
+            folderRepo.findById(
+                    folder.getParent().getId()
+            ).ifPresent(parentFolder -> this.updateDate(parentFolder.getId(), date));
         }
         folderRepo.delete(folder);
     }

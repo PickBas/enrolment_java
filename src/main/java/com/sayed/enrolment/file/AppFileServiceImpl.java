@@ -37,7 +37,7 @@ public class AppFileServiceImpl implements AppFileService {
         fileRepo.save(file);
         if (dto.getParentId() != null) {
             Folder folder = folderService.getFolder(dto.getParentId());
-            folderService.updateDate(folder, updateDate);
+            folderService.updateDate(folder.getId(), updateDate);
             folder.addChildFile(file);
             folderService.saveFolder(folder);
         }
@@ -70,7 +70,7 @@ public class AppFileServiceImpl implements AppFileService {
         );
         if (file.getParent() != null) {
             try {
-                folderService.updateDate(folderService.getFolder(file.getParent().getId()), date);
+                folderService.updateDate(folderService.getFolder(file.getParent().getId()).getId(), date);
             } catch (FolderNotFoundException e) {
                 throw new IllegalStateException("Could not find folder");
             }
