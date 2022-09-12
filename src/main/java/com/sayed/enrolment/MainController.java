@@ -93,8 +93,11 @@ public class MainController {
     }
 
     @GetMapping("/updates")
-    public ResponseEntity<?> updates(@RequestParam(name = "date")
-                                         @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", fallbackPatterns = {"yyyy-MM-dd'T'HH:mm:ss.sss'Z'"}) Date inputDate) {
+    public ResponseEntity<?> updates(
+            @RequestParam(name = "date")
+            @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'",
+                    fallbackPatterns = {"yyyy-MM-dd'T'HH:mm:ss.sss'Z'"}) Date inputDate
+    ) {
         Timestamp date = new Timestamp(inputDate.getTime());
         return ResponseEntity.ok(fileService.updates(date));
     }

@@ -4,6 +4,8 @@ import com.sayed.enrolment.dtos.EntityDto;
 import com.sayed.enrolment.file.AppFile;
 import com.sayed.enrolment.folder.exceptions.FolderNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -58,6 +60,7 @@ public class FolderServiceImpl implements FolderService {
     }
 
     @Override
+    @Cacheable(value = "folder", key = "#id")
     public Folder getFolder(String id) throws FolderNotFoundException {
         return folderRepo.findById(id).orElseThrow(
                 () -> new FolderNotFoundException("Wrong id was provided.")
@@ -70,6 +73,7 @@ public class FolderServiceImpl implements FolderService {
     }
 
     @Override
+    @CacheEvict(value = "folder", key="#id")
     public void deleteFolder(String id, Timestamp date) throws FolderNotFoundException {
         Folder folder = folderRepo.findById(id).orElseThrow(
                 () -> new FolderNotFoundException("Wrong id was provided.")

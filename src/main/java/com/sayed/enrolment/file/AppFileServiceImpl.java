@@ -6,6 +6,8 @@ import com.sayed.enrolment.folder.Folder;
 import com.sayed.enrolment.folder.FolderService;
 import com.sayed.enrolment.folder.exceptions.FolderNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -42,6 +44,7 @@ public class AppFileServiceImpl implements AppFileService {
     }
 
     @Override
+    @Cacheable(value = "appfile", key = "#id")
     public AppFile getFile(String id) throws AppFileNotFoundException {
         return fileRepo.findById(id).orElseThrow(
                 () -> new AppFileNotFoundException("Wrong file id was provided.")
@@ -49,6 +52,7 @@ public class AppFileServiceImpl implements AppFileService {
     }
 
     @Override
+    @Cacheable("appfileupdates")
     public List<AppFile> updates(Timestamp date) {
         return fileRepo.findAllByDateBetween(new Timestamp(date.getTime() - 24 * 60 * 60 * 1000), date);
     }
@@ -59,6 +63,7 @@ public class AppFileServiceImpl implements AppFileService {
     }
 
     @Override
+    @CacheEvict(value = "appfile", key = "#id")
     public void deleteFile(String id, Timestamp date) throws AppFileNotFoundException {
         AppFile file = fileRepo.findById(id).orElseThrow(
                 () -> new AppFileNotFoundException("Wrong file id was provided.")
