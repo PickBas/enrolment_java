@@ -23,10 +23,14 @@ public class FolderServiceImpl implements FolderService {
         folder.setId(dto.getId());
         folder.setUrl(dto.getUrl());
         this.updateDate(folder, updateDate);
-        if (folder.getParentId() != null && dto.getParentId() == null) {
-            this.deleteChildFolder(folder.getParentId(), folder, updateDate);
+        if (folder.getParent() != null && dto.getParentId() == null) {
+            this.deleteChildFolder(folder.getParent().getId(), folder, updateDate);
         }
-        folder.setParentId(dto.getParentId());
+        if (dto.getParentId() != null) {
+            folder.setParent(folderRepo.findById(dto.getParentId()).orElseThrow(() -> new FolderNotFoundException("Could nof find folder")));
+        } else {
+            folder.setParent(null);
+        }
         folderRepo.save(folder);
         if (dto.getParentId() != null) {
             Folder folderParent = this.getFolder(dto.getParentId());
@@ -46,10 +50,10 @@ public class FolderServiceImpl implements FolderService {
         while (folder != null) {
             folder.setDate(updateDate);
             folderRepo.save(folder);
-            if (folder.getParentId() == null) {
+            if (folder.getParent() == null) {
                 break;
             }
-            folder = folderRepo.findById(folder.getParentId()).orElse(null);
+            folder = folderRepo.findById(folder.getParent().getId()).orElse(null);
         }
     }
 
@@ -66,10 +70,13 @@ public class FolderServiceImpl implements FolderService {
     }
 
     @Override
-    public void deleteFolder(String id) throws FolderNotFoundException {
+    public void deleteFolder(String id, Timestamp date) throws FolderNotFoundException {
         Folder folder = folderRepo.findById(id).orElseThrow(
                 () -> new FolderNotFoundException("Wrong id was provided.")
         );
+        if (folder.getParent() != null) {
+            folderRepo.findById(folder.getParent().getId()).ifPresent(parentFolder -> this.updateDate(parentFolder, date));
+        }
         folderRepo.delete(folder);
     }
 

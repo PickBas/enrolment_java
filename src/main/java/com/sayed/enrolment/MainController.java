@@ -7,14 +7,13 @@ import com.sayed.enrolment.file.exceptions.AppFileNotFoundException;
 import com.sayed.enrolment.folder.FolderService;
 import com.sayed.enrolment.folder.exceptions.FolderNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.Timestamp;
+import java.util.*;
 
 @RestController
 @CrossOrigin
@@ -78,6 +77,16 @@ public class MainController {
         }
     }
 
-//    @DeleteMapping("/delete/{id}")
-//    public ResponseEntity<?>
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deleteById(@PathVariable(name = "id") String id,
+                                        @RequestParam(name = "date") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssX") Date inputDate) throws AppFileNotFoundException {
+        Timestamp date = new Timestamp(inputDate.getTime());
+        try {
+            folderService.deleteFolder(id, date);
+            return ResponseEntity.ok().build();
+        } catch (FolderNotFoundException e) {
+            fileService.deleteFile(id, date);
+            return ResponseEntity.ok().build();
+        }
+    }
 }

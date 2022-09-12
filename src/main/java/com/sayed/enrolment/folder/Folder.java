@@ -2,9 +2,12 @@ package com.sayed.enrolment.folder;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sayed.enrolment.file.AppFile;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -19,15 +22,35 @@ public class Folder {
     @Column(nullable = false)
     private String id;
     private String url;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'")
+    @JsonFormat(
+            shape = JsonFormat.Shape.STRING,
+            pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+    )
     private Timestamp date;
-    private String parentId;
+    @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @JsonIgnore
+    private Folder parent;
     private final String type = "FOLDER";
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(
+            cascade = {CascadeType.PERSIST,
+                    CascadeType.PERSIST,
+                    CascadeType.REMOVE,
+                    CascadeType.REFRESH},
+            fetch = FetchType.LAZY, orphanRemoval = true
+    )
     @JsonIgnore
+    @JoinColumn(name = "parent_id")
     private List<AppFile> childrenFiles;
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(
+            cascade = {CascadeType.PERSIST,
+                    CascadeType.PERSIST,
+                    CascadeType.REMOVE,
+                    CascadeType.REFRESH},
+            fetch = FetchType.LAZY, orphanRemoval = true
+    )
     @JsonIgnore
+    @JoinColumn(name = "parent_id")
     private List<Folder> childrenFolders;
 
     public Folder() {
@@ -69,5 +92,8 @@ public class Folder {
         return size;
     }
 
-
+    @JsonProperty
+    public String parentId() {
+        return parent == null ? null : parent.getId();
+    }
 }

@@ -12,7 +12,7 @@ public interface FolderService {
     void updateDate(Folder folder, Timestamp updateDate);
     Folder getFolder(String id) throws FolderNotFoundException;
     boolean folderDuplicateCheck(String id);
-    void deleteFolder(String id) throws FolderNotFoundException;
+    void deleteFolder(String id, Timestamp date) throws FolderNotFoundException;
     void deleteChildFile(String id, AppFile file, Timestamp updateDate);
     void deleteChildFolder(String id, Folder folder, Timestamp updateDate);
 }

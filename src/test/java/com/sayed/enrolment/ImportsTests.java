@@ -83,7 +83,7 @@ class ImportsTests {
         Folder folder = repository.findById("элемент_1_6").orElseThrow(
                 () -> new IllegalStateException("Could not find folder")
         );
-        Assertions.assertEquals("элемент_1_5", folder.getParentId());
+        Assertions.assertEquals("элемент_1_5", folder.getParent().getId());
     }
 
 }
