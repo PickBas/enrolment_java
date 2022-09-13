@@ -34,7 +34,8 @@ public class AppFileServiceImpl implements AppFileService {
     @Override
     @Caching(evict = {
             @CacheEvict(value = "appfile", key = "#dto.getId()"),
-            @CacheEvict(value = "appfilehistory", key = "#dto.getId()")
+            @CacheEvict(value = "appfilehistory", key = "#dto.getId()"),
+            @CacheEvict(value = "folder", allEntries = true)
     })
     public void saveFile(EntityDto dto, Timestamp updateDate) throws FolderNotFoundException {
         AppFile file = fileRepo.findById(dto.getId()).orElse(null);

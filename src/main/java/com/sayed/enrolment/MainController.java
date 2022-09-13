@@ -113,7 +113,7 @@ public class MainController {
                     fallbackPatterns = {"yyyy-MM-dd'T'HH:mm:ss.sss'Z'"}) Date dateEnd) throws AppFileNotFoundException {
         try {
             folderService.getFolder(id);
-            return ResponseEntity.internalServerError().build();
+            return ResponseEntity.ok(folderService.getHistory(id, dateStart.getTime(), dateEnd.getTime()));
         } catch (FolderNotFoundException e) {
             fileService.getFile(id);
             return ResponseEntity.ok(fileService.getHistory(id, dateStart.getTime(), dateEnd.getTime()));

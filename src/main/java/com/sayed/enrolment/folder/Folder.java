@@ -63,11 +63,15 @@ public class Folder {
     }
 
     public void addChildFile(AppFile file) {
-        childrenFiles.add(file);
+        if (!childrenFiles.contains(file)) {
+            childrenFiles.add(file);
+        }
     }
 
     public void addChildFolder(Folder folder) {
-        childrenFolders.add(folder);
+        if (!childrenFolders.contains(folder)) {
+            childrenFolders.add(folder);
+        }
     }
 
     public void removeChildFile(AppFile file) {

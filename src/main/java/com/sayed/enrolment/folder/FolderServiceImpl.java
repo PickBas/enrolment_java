@@ -4,17 +4,28 @@ import com.sayed.enrolment.dtos.EntityDto;
 import com.sayed.enrolment.file.AppFile;
 import com.sayed.enrolment.folder.exceptions.FolderNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.envers.AuditReader;
+import org.hibernate.envers.AuditReaderFactory;
+import org.hibernate.envers.RevisionType;
+import org.hibernate.envers.query.AuditEntity;
+import org.hibernate.envers.query.AuditQuery;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class FolderServiceImpl implements FolderService {
 
     private final FolderRepo folderRepo;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Override
     public void saveFolder(EntityDto dto, Timestamp updateDate) throws FolderNotFoundException {
@@ -66,6 +77,25 @@ public class FolderServiceImpl implements FolderService {
         return folderRepo.findById(id).orElseThrow(
                 () -> new FolderNotFoundException("Wrong id was provided.")
         );
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<Folder> getHistory(String id, Long dateStart, Long dateEnd) {
+        AuditReader auditReader = AuditReaderFactory.get(entityManager);
+        AuditQuery query = auditReader.createQuery()
+                .forRevisionsOfEntity(Folder.class, false, false)
+                .add(AuditEntity.id().eq(id))
+                .add(AuditEntity.revisionType().eq(RevisionType.MOD));
+        List<Object[]> revisions = (List<Object[]>) query.getResultList();
+        List<Folder> results = new ArrayList<>();
+        for (Object[] result : revisions) {
+            Folder folder = (Folder) result[0];
+            if (folder.getDate().getTime() > dateStart && folder.getDate().getTime() < dateEnd) {
+                results.add(folder);
+            }
+        }
+        return results;
     }
 
     @Override
