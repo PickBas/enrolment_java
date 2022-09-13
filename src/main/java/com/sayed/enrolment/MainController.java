@@ -2,8 +2,10 @@ package com.sayed.enrolment;
 
 import com.sayed.enrolment.dtos.EntityDto;
 import com.sayed.enrolment.dtos.ImportsRequestDto;
+import com.sayed.enrolment.file.AppFile;
 import com.sayed.enrolment.file.AppFileService;
 import com.sayed.enrolment.file.exceptions.AppFileNotFoundException;
+import com.sayed.enrolment.folder.Folder;
 import com.sayed.enrolment.folder.FolderService;
 import com.sayed.enrolment.folder.exceptions.FolderNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,10 +115,14 @@ public class MainController {
                     fallbackPatterns = {"yyyy-MM-dd'T'HH:mm:ss.sss'Z'"}) Date dateEnd) throws AppFileNotFoundException {
         try {
             folderService.getFolder(id);
-            return ResponseEntity.ok(folderService.getHistory(id, dateStart.getTime(), dateEnd.getTime()));
+            Map<String, List<Folder>> response = new HashMap<>();
+            response.put("items", folderService.getHistory(id, dateStart.getTime(), dateEnd.getTime()));
+            return ResponseEntity.ok(response);
         } catch (FolderNotFoundException e) {
             fileService.getFile(id);
-            return ResponseEntity.ok(fileService.getHistory(id, dateStart.getTime(), dateEnd.getTime()));
+            Map<String, List<AppFile>> response = new HashMap<>();
+            response.put("items", fileService.getHistory(id, dateStart.getTime(), dateEnd.getTime()));
+            return ResponseEntity.ok(response);
         }
     }
 }
