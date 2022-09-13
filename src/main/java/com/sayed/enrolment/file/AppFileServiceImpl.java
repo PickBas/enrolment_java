@@ -45,7 +45,7 @@ public class AppFileServiceImpl implements AppFileService {
         file.setId(dto.getId());
         file.setUrl(dto.getUrl());
         file.setDate(updateDate);
-        if (file.getParent() != null && dto.getParentId() == null) {
+        if (file.getParent() != null) {
             folderService.deleteChildFile(file.getParent().getId(), file, updateDate);
         }
         file.setParent(dto.getParentId() == null ? null : folderService.getFolder(dto.getParentId()));
@@ -53,8 +53,8 @@ public class AppFileServiceImpl implements AppFileService {
         fileRepo.save(file);
         if (dto.getParentId() != null) {
             Folder folder = folderService.getFolder(dto.getParentId());
-            folderService.updateDate(folder.getId(), updateDate);
             folder.addChildFile(file);
+            folderService.updateDate(folder.getId(), updateDate);
             folderService.saveFolder(folder);
         }
     }
@@ -108,11 +108,7 @@ public class AppFileServiceImpl implements AppFileService {
                 () -> new AppFileNotFoundException("Wrong file id was provided.")
         );
         if (file.getParent() != null) {
-            try {
-                folderService.updateDate(folderService.getFolder(file.getParent().getId()).getId(), date);
-            } catch (FolderNotFoundException e) {
-                throw new IllegalStateException("Could not find folder");
-            }
+            folderService.deleteChildFile(file.getParent().getId(), file, date);
         }
         fileRepo.delete(file);
     }

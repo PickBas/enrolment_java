@@ -123,7 +123,7 @@ public class FolderServiceImpl implements FolderService {
                 () -> new IllegalArgumentException("Could not find folder")
         );
         folder.removeChildFile(file);
-        folder.setDate(updateDate);
+        this.updateDate(id, updateDate);
         folderRepo.save(folder);
     }
 
