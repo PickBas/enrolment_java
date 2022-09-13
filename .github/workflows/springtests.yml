@@ -36,3 +36,4 @@ jobs:
         run: ./mvnw test
         env:
           PSQL_PASSWORD: postgres
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/enrolment_java_db
