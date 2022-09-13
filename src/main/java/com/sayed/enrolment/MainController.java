@@ -2,8 +2,10 @@ package com.sayed.enrolment;
 
 import com.sayed.enrolment.dtos.EntityDto;
 import com.sayed.enrolment.dtos.ImportsRequestDto;
+import com.sayed.enrolment.file.AppFile;
 import com.sayed.enrolment.file.AppFileService;
 import com.sayed.enrolment.file.exceptions.AppFileNotFoundException;
+import com.sayed.enrolment.folder.Folder;
 import com.sayed.enrolment.folder.FolderService;
 import com.sayed.enrolment.folder.exceptions.FolderNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,9 +95,34 @@ public class MainController {
     }
 
     @GetMapping("/updates")
-    public ResponseEntity<?> updates(@RequestParam(name = "date")
-                                         @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", fallbackPatterns = {"yyyy-MM-dd'T'HH:mm:ss.sss'Z'"}) Date inputDate) {
+    public ResponseEntity<?> updates(
+            @RequestParam(name = "date")
+            @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'",
+                    fallbackPatterns = {"yyyy-MM-dd'T'HH:mm:ss.sss'Z'"}) Date inputDate
+    ) {
         Timestamp date = new Timestamp(inputDate.getTime());
         return ResponseEntity.ok(fileService.updates(date));
+    }
+
+    @GetMapping("/node/{id}/history")
+    public ResponseEntity<?> nodeHistory(
+            @PathVariable String id,
+            @RequestParam(name = "dateStart")
+            @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'",
+                    fallbackPatterns = {"yyyy-MM-dd'T'HH:mm:ss.sss'Z'"}) Date dateStart,
+            @RequestParam(name = "dateEnd")
+            @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'",
+                    fallbackPatterns = {"yyyy-MM-dd'T'HH:mm:ss.sss'Z'"}) Date dateEnd) throws AppFileNotFoundException {
+        try {
+            folderService.getFolder(id);
+            Map<String, List<Folder>> response = new HashMap<>();
+            response.put("items", folderService.getHistory(id, dateStart.getTime(), dateEnd.getTime()));
+            return ResponseEntity.ok(response);
+        } catch (FolderNotFoundException e) {
+            fileService.getFile(id);
+            Map<String, List<AppFile>> response = new HashMap<>();
+            response.put("items", fileService.getHistory(id, dateStart.getTime(), dateEnd.getTime()));
+            return ResponseEntity.ok(response);
+        }
     }
 }
