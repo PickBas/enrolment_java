@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.envers.Audited;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -15,7 +17,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+@Audited
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Setter @Getter
 public class Folder {
     @Id
