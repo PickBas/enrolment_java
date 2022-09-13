@@ -69,17 +69,19 @@ public class AppFileServiceImpl implements AppFileService {
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<AppFile> getHistory(String id) {
+    public List<AppFile> getHistory(String id, Long dateStart, Long dateEnd) {
         AuditReader auditReader = AuditReaderFactory.get(entityManager);
         AuditQuery query = auditReader.createQuery()
                 .forRevisionsOfEntity(AppFile.class, false, false)
-                .add(AuditEntity.id().eq(id)) // if you remove this line, you'll get an update history of all Notes
-                .add(AuditEntity.revisionType().eq(RevisionType.MOD)); // we're only interested in MODifications
+                .add(AuditEntity.id().eq(id))
+                .add(AuditEntity.revisionType().eq(RevisionType.MOD));
         List<Object[]> revisions = (List<Object[]>) query.getResultList();
         List<AppFile> results = new ArrayList<>();
         for (Object[] result : revisions) {
             AppFile file = (AppFile) result[0];
-            results.add(file);
+            if (file.getDate().getTime() > dateStart && file.getDate().getTime() < dateEnd) {
+                results.add(file);
+            }
         }
         return results;
     }

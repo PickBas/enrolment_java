@@ -110,7 +110,13 @@ public class MainController {
                     fallbackPatterns = {"yyyy-MM-dd'T'HH:mm:ss.sss'Z'"}) Date dateStart,
             @RequestParam(name = "dateEnd")
             @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'",
-                    fallbackPatterns = {"yyyy-MM-dd'T'HH:mm:ss.sss'Z'"}) Date dateEnd) {
-        return ResponseEntity.ok(fileService.getHistory(id));
+                    fallbackPatterns = {"yyyy-MM-dd'T'HH:mm:ss.sss'Z'"}) Date dateEnd) throws AppFileNotFoundException {
+        try {
+            folderService.getFolder(id);
+            return ResponseEntity.internalServerError().build();
+        } catch (FolderNotFoundException e) {
+            fileService.getFile(id);
+            return ResponseEntity.ok(fileService.getHistory(id, dateStart.getTime(), dateEnd.getTime()));
+        }
     }
 }
