@@ -13,6 +13,7 @@ import org.hibernate.envers.query.AuditEntity;
 import org.hibernate.envers.query.AuditQuery;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
@@ -31,6 +32,10 @@ public class AppFileServiceImpl implements AppFileService {
     private EntityManager entityManager;
 
     @Override
+    @Caching(evict = {
+            @CacheEvict(value = "appfile", key = "#dto.getId()"),
+            @CacheEvict(value = "appfilehistory", key = "#dto.getId()")
+    })
     public void saveFile(EntityDto dto, Timestamp updateDate) throws FolderNotFoundException {
         AppFile file = fileRepo.findById(dto.getId()).orElse(null);
         if (file == null) {
@@ -69,6 +74,7 @@ public class AppFileServiceImpl implements AppFileService {
 
     @Override
     @SuppressWarnings("unchecked")
+    @Cacheable(value = "appfilehistory", key = "#id")
     public List<AppFile> getHistory(String id, Long dateStart, Long dateEnd) {
         AuditReader auditReader = AuditReaderFactory.get(entityManager);
         AuditQuery query = auditReader.createQuery()
@@ -92,7 +98,10 @@ public class AppFileServiceImpl implements AppFileService {
     }
 
     @Override
-    @CacheEvict(value = "appfile", key = "#id")
+    @Caching(evict = {
+            @CacheEvict(value = "appfile", key = "#id"),
+            @CacheEvict(value = "appfilehistory", key = "#id")
+    })
     public void deleteFile(String id, Timestamp date) throws AppFileNotFoundException {
         AppFile file = fileRepo.findById(id).orElseThrow(
                 () -> new AppFileNotFoundException("Wrong file id was provided.")
