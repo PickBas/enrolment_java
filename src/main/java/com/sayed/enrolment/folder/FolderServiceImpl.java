@@ -39,15 +39,14 @@ public class FolderServiceImpl implements FolderService {
         if (folder.getParent() != null && dto.getParentId() == null) {
             this.deleteChildFolder(folder.getParent().getId(), folder, updateDate);
         }
-        if (dto.getParentId() != null) {
-            folder.setParent(folderRepo.findById(dto.getParentId()).orElseThrow(() -> new FolderNotFoundException("Could nof find folder")));
-        } else {
-            folder.setParent(null);
-        }
+        folder.setParent(dto.getParentId() == null
+                ? null
+                : folderRepo.findById(dto.getParentId()).orElseThrow(
+                        () -> new FolderNotFoundException("Could nof find folder")));
         folderRepo.save(folder);
         if (dto.getParentId() != null) {
             Folder folderParent = this.getFolder(dto.getParentId());
-            folderParent.setDate(updateDate);
+            this.updateDate(folderParent.getId(), updateDate);
             folderParent.addChildFolder(folder);
             folderRepo.save(folderParent);
         }
@@ -133,7 +132,7 @@ public class FolderServiceImpl implements FolderService {
                 () -> new IllegalArgumentException("Could not find folder")
         );
         origin.removeChildFolder(folder);
-        origin.setDate(updateDate);
+        this.updateDate(id, updateDate);
         folderRepo.save(origin);
     }
 }

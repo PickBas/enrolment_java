@@ -52,10 +52,10 @@ public class AppFileServiceImpl implements AppFileService {
         file.setSize(dto.getSize());
         fileRepo.save(file);
         if (dto.getParentId() != null) {
-            Folder folder = folderService.getFolder(dto.getParentId());
-            folder.addChildFile(file);
-            folderService.updateDate(folder.getId(), updateDate);
-            folderService.saveFolder(folder);
+            Folder folderParent = folderService.getFolder(dto.getParentId());
+            folderParent.addChildFile(file);
+            folderService.updateDate(folderParent.getId(), updateDate);
+            folderService.saveFolder(folderParent);
         }
     }
 
